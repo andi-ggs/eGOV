@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificare Status Formular</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .status-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status-header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .search-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        .status-result {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+        }
+        .status-header-result {
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-processed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-details {
+            padding: 30px;
+        }
+        .detail-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .detail-value {
+            color: #7f8c8d;
+        }
+        .logs-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #ecf0f1;
+        }
+        .logs-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .log-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #27ae60;
+        }
+        .log-action {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .log-details {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .log-date {
+            color: #95a5a6;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <div class="status-header">
+            <h1>🔍 Verificare Status Formular</h1>
+            <p>Introduceți referința formularului pentru a verifica statusul acestuia</p>
+        </div>
+
+        <div class="search-form">
+            <form id="statusForm">
+                <div class="form-group">
+                    <label for="referenceInput">Referința formularului:</label>
+                    <input type="text" id="referenceInput" name="reference" 
+                           placeholder="ex: REF-12345678-20240115-001" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🔍 Verifică Status
+                </button>
+            </form>
+        </div>
+
+        <div id="statusResult" class="status-result">
+            <div id="statusHeader" class="status-header-result">
+                <!-- Status header va fi populat dinamic -->
+            </div>
+            <div id="statusDetails" class="status-details">
+                <!-- Detaliile vor fi populate dinamic -->
+            </div>
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <h3>❌ Formularul nu a fost găsit</h3>
+            <p>Vă rugăm să verificați referința introdusă și să încercați din nou.</p>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <h3>🔄 Se încarcă...</h3>
+            <p>Vă rugăm să așteptați...</p>
+        </div>
+    </div>
+
+    <script>
+        class StatusChecker {
+            constructor() {
+                this.form = document.getElementById('statusForm');
+                this.statusResult = document.getElementById('statusResult');
+                this.noResults = document.getElementById('noResults');
+                this.loading = document.getElementById('loading');
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                this.form.addEventListener('submit', (e) => this.checkStatus(e));
+            }
+
+            async checkStatus(event) {
+                event.preventDefault();
+                
+                const reference = document.getElementById('referenceInput').value.trim();
+                if (!reference) {
+                    alert('Vă rugăm să introduceți referința formularului');
+                    return;
+                }
+
+                this.showLoading();
+                
+                try {
+                    const response = await fetch(`/api/form-status/${encodeURIComponent(reference)}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.displayStatus(data.form);
+                    } else {
+                        this.showNoResults();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showNoResults();
+                }
+            }
+
+            showLoading() {
+                this.statusResult.style.display = 'none';
+                this.noResults.style.display = 'none';
+                this.loading.style.display = 'block';
+            }
+
+            displayStatus(form) {
+                this.loading.style.display = 'none';
+                this.noResults.style.display = 'none';
+                this.statusResult.style.display = 'block';
+                
+                // Actualizare header status
+                const statusHeader = document.getElementById('statusHeader');
+                statusHeader.className = `status-header-result status-${form.status}`;
+                statusHeader.innerHTML = `
+                    <div>📋 Formular: ${form.reference}</div>
+                    <div>Status: ${this.getStatusText(form.status)}</div>
+                `;
+                
+                // Actualizare detalii
+                const statusDetails = document.getElementById('statusDetails');
+                statusDetails.innerHTML = `
+                    <div class="detail-row">
+                        <div class="detail-label">ID Formular:</div>
+                        <div class="detail-value">${form.id}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Referință:</div>
+                        <div class="detail-value">${form.reference}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value">${this.getStatusText(form.status)}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Data trimiterii:</div>
+                        <div class="detail-value">${new Date(form.createdAt).toLocaleString('ro-RO')}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Ultima actualizare:</div>
+                        <div class="detail-value">${new Date(form.updatedAt).toLocaleString('ro-RO')}</div>
+                    </div>
+                    ${this.renderLogs(form.logs)}
+                `;
+            }
+
+            renderLogs(logs) {
+                if (!logs || logs.length === 0) {
+                    return '';
+                }
+
+                return `
+                    <div class="logs-section">
+                        <div class="logs-title">📝 Istoric Acțiuni</div>
+                        ${logs.map(log => `
+                            <div class="log-item">
+                                <div class="log-action">${this.getActionText(log.action)}</div>
+                                <div class="log-details">${log.details}</div>
+                                <div class="log-date">${new Date(log.created_at).toLocaleString('ro-RO')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            getStatusText(status) {
+                const statusMap = {
+                    'pending': '⏳ În Așteptare',
+                    'approved': '✅ Aprobat',
+                    'rejected': '❌ Respins',
+                    'processed': '✅ Procesat'
+                };
+                return statusMap[status] || status;
+            }
+
+            getActionText(action) {
+                const actionMap = {
+                    'form_submitted': '📤 Formular trimis',
+                    'form_reviewed': '👀 Formular revizuit',
+                    'status_updated': '🔄 Status actualizat',
+                    'form_approved': '✅ Formular aprobat',
+                    'form_rejected': '❌ Formular respins',
+                    'form_processed': '✅ Formular procesat'
+                };
+                return actionMap[action] || action;
+            }
+
+            showNoResults() {
+                this.loading.style.display = 'none';
+                this.statusResult.style.display = 'none';
+                this.noResults.style.display = 'block';
+            }
+        }
+
+        // Inițializare verificator status
+        document.addEventListener('DOMContentLoaded', () => {
+            new StatusChecker();
+        });
+    </script>
+</body>
+</html>

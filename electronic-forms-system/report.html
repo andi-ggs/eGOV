@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport Analitic - Formulare Electronice</title>
+    <link rel="stylesheet" href="report-styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Raport Analitic - Formulare Electronice</h1>
+            <p>Analiză automată a datelor din baza de date</p>
+        </header>
+
+        <div class="report-controls">
+            <button id="refreshBtn" class="btn btn-primary">🔄 Actualizează Raportul</button>
+            <button id="generatePdfBtn" class="btn btn-success">📄 Generează PDF</button>
+            <a href="/" class="btn btn-secondary">🏠 Acasă</a>
+        </div>
+
+        <!-- Filtre pentru raport -->
+        <div class="report-filters" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">🔍 Filtrare după Dată</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                <div>
+                    <label for="reportDateFrom" style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">De la data:</label>
+                    <input type="date" id="reportDateFrom" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                </div>
+                <div>
+                    <label for="reportDateTo" style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">Până la data:</label>
+                    <input type="date" id="reportDateTo" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 1rem;">
+                </div>
+                <div>
+                    <button id="applyReportFilters" class="btn btn-primary" style="width: 100%;">Aplică Filtrele</button>
+                </div>
+                <div>
+                    <button id="resetReportFilters" class="btn btn-secondary" style="width: 100%;">Resetează</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Se încarcă datele...</p>
+        </div>
+
+        <div id="reportContent" class="report-content" style="display: none;">
+            <!-- Statistici generale -->
+            <section class="report-section">
+                <h2>📈 Statistici Generale</h2>
+                <div class="stats-grid" id="generalStats">
+                    <!-- Se va popula dinamic -->
+                </div>
+            </section>
+
+            <!-- Analiza 1: Scopul plății -->
+            <section class="report-section">
+                <h2>🎯 Analiza după Scopul Plății</h2>
+                <div class="analysis-description">
+                    <p id="purposeDescription"></p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="purposeChart"></canvas>
+                </div>
+                <div class="data-table">
+                    <table id="purposeTable">
+                        <thead>
+                            <tr>
+                                <th>Scopul Plății</th>
+                                <th>Număr Formulare</th>
+                                <th>Procent</th>
+                                <th>Suma Totală</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Analiza 2: Moneda -->
+            <section class="report-section">
+                <h2>💱 Analiza după Monedă</h2>
+                <div class="analysis-description">
+                    <p id="currencyDescription"></p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="currencyChart"></canvas>
+                </div>
+                <div class="data-table">
+                    <table id="currencyTable">
+                        <thead>
+                            <tr>
+                                <th>Monedă</th>
+                                <th>Număr Formulare</th>
+                                <th>Procent</th>
+                                <th>Suma Totală</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Analiza 3: Sume -->
+            <section class="report-section">
+                <h2>💰 Analiza Sumei Totale</h2>
+                <div class="analysis-description">
+                    <p id="amountDescription"></p>
+                </div>
+                <div class="stats-grid" id="amountStats">
+                    <!-- Se va popula dinamic -->
+                </div>
+            </section>
+
+            <!-- Analiza 4: TVA -->
+            <section class="report-section">
+                <h2>📋 Analiza după Cota TVA</h2>
+                <div class="analysis-description">
+                    <p id="vatDescription"></p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="vatChart"></canvas>
+                </div>
+                <div class="data-table">
+                    <table id="vatTable">
+                        <thead>
+                            <tr>
+                                <th>Cota TVA</th>
+                                <th>Număr Formulare</th>
+                                <th>Procent</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script src="report.js"></script>
+</body>
+</html>
+

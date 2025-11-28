@@ -6,31 +6,43 @@ Repository care conține proiecte pentru sistemul de formulare electronice pentr
 
 ```
 eGOV/
-├── HW1/                        # Proiect inițial - Formular Electronic
-│   ├── index.html              # Formularul principal
-│   ├── admin.html              # Panou administrare
-│   ├── status.html             # Verificare status
-│   ├── script.js               # Logica JavaScript
-│   ├── styles.css              # Stiluri CSS
-│   ├── server-simple.js        # Server Node.js
-│   ├── package.json            # Configurare dependențe
-│   ├── forms-data.json         # Date formulare (JSON)
-│   └── README.md               # Documentație HW1
+├── .gitignore                 # Git ignore pentru repository root
+├── README.md                  # Acest fișier
 │
-└── electronic-forms-system/    # Proiect complet - Sistem Formulare cu Raportare
-    ├── index.html              # Formularul principal
-    ├── admin.html              # Panou administrare
-    ├── status.html             # Verificare status
-    ├── report.html             # Pagină raportare analitică
-    ├── report.js               # Logica raportării
-    ├── report-styles.css       # Stiluri pentru raport
-    ├── script.js                # Logica JavaScript
-    ├── styles.css               # Stiluri CSS
-    ├── server-simple.js         # Server Node.js (unificat)
-    ├── package.json             # Configurare dependențe
-    ├── forms-data.json          # Date formulare (JSON)
-    ├── uploads/                # Fișiere atașate
-    └── README.md                # Documentație proiect
+├── HW1/                       # Proiect inițial - Formular Electronic
+│   ├── .env                   # Variabile de mediu (nu este versionat)
+│   ├── index.html             # Formularul principal
+│   ├── admin.html             # Panou administrare
+│   ├── status.html            # Verificare status formular
+│   ├── script.js              # Logica JavaScript pentru formular
+│   ├── styles.css             # Stiluri CSS
+│   ├── server-simple.js       # Server Node.js/Express
+│   ├── install-simple.js     # Script de instalare/configurare
+│   ├── package.json           # Configurare dependențe npm
+│   ├── package-lock.json      # Lock file pentru dependențe
+│   ├── forms-data.json        # Baza de date JSON (formulare salvate)
+│   ├── README.md              # Documentație specifică HW1
+│   └── node_modules/         # Dependențe npm (nu este versionat)
+│
+└── electronic-forms-system/  # Proiect complet - Sistem Formulare cu Raportare
+    ├── .env                   # Variabile de mediu (nu este versionat)
+    ├── .gitignore             # Git ignore specific proiectului
+    ├── index.html             # Formularul principal
+    ├── admin.html             # Panou administrare cu filtrare
+    ├── status.html            # Verificare status formular
+    ├── report.html            # Pagină raportare analitică
+    ├── report.js              # Logica raportării și grafice
+    ├── report-styles.css      # Stiluri pentru pagina de raport
+    ├── script.js              # Logica JavaScript pentru formular
+    ├── styles.css             # Stiluri CSS principale
+    ├── server-simple.js       # Server Node.js/Express (unificat)
+    ├── install-simple.js      # Script de instalare/configurare
+    ├── package.json           # Configurare dependențe npm
+    ├── package-lock.json      # Lock file pentru dependențe
+    ├── forms-data.json        # Baza de date JSON (formulare salvate)
+    ├── README.md              # Documentație specifică proiectului
+    ├── uploads/               # Director pentru fișiere atașate
+    └── node_modules/          # Dependențe npm (nu este versionat)
 ```
 
 ## 🚀 Proiecte Disponibile
@@ -42,21 +54,29 @@ Sistem de bază pentru completarea și trimiterea formularelor electronice.
 - ✅ Calculare automată TVA și impozite
 - ✅ Generare PDF și XML
 - ✅ Validare în timp real
-- ✅ Upload fișiere atașate
 - ✅ Panou administrare
 - ✅ Verificare status formulare
+- ✅ Gestionare formulare (aprobare/respingere/procesare)
 
 **Instalare și rulare:**
 ```bash
 cd HW1
 npm install
 node server-simple.js
+# sau
+npm start
 ```
 
 **Accesare:**
-- Formular: http://localhost:3000
-- Admin: http://localhost:3000/admin
-- Status: http://localhost:3000/status
+- **Formular**: http://localhost:3000
+- **Admin**: http://localhost:3000/admin
+- **Status**: http://localhost:3000/status
+
+**API Endpoints:**
+- `POST /api/submit-form` - Trimite formular nou
+- `GET /api/forms` - Obține lista formularelor (cu filtrare și paginare)
+- `GET /api/form-status/:reference` - Verifică status formular
+- `PUT /api/forms/:id/status` - Actualizează status formular
 
 ---
 
@@ -73,19 +93,27 @@ Sistem complet care include toate funcționalitățile din HW1 plus raportare an
 - ✅ Filtrare rapoarte după dată
 - ✅ Export raport în PDF
 - ✅ Statistici generale
+- ✅ Upload fișiere atașate
 
 **Instalare și rulare:**
 ```bash
 cd electronic-forms-system
 npm install
 node server-simple.js
+# sau
+npm start
 ```
 
 **Accesare:**
-- Formular: http://localhost:3000
-- Admin: http://localhost:3000/admin
-- Status: http://localhost:3000/status
-- **Raport: http://localhost:3000/report** ⭐
+- **Formular**: http://localhost:3000
+- **Admin**: http://localhost:3000/admin
+- **Status**: http://localhost:3000/status
+- **Raport**: http://localhost:3000/report ⭐
+
+**API Endpoints:**
+- Toate endpoint-urile din HW1
+- `GET /api/report-data` - Obține date pentru raportare (cu filtrare după dată)
+- `POST /api/generate-pdf-report` - Generează raport PDF
 
 ## 📊 Raportare Analitică
 
@@ -99,8 +127,8 @@ Sistemul `electronic-forms-system` include un modul de raportare care generează
 
 2. **Analiza după Scopul Plății**
    - Distribuție procentuală
-   - Grafic doughnut
-   - Tabel detaliat
+   - Grafic doughnut chart
+   - Tabel detaliat cu sume
 
 3. **Analiza după Monedă**
    - Distribuție pe monede
@@ -114,24 +142,71 @@ Sistemul `electronic-forms-system` include un modul de raportare care generează
 
 5. **Filtrare după Dată**
    - Filtrare perioadă specifică
-   - Analize personalizate
+   - Analize personalizate pentru interval selectat
 
 ## 🛠️ Tehnologii Utilizate
 
-- **Frontend:** HTML5, CSS3, JavaScript (ES6+)
-- **Backend:** Node.js, Express.js
-- **Vizualizare Date:** Chart.js, Chart.js DataLabels Plugin
-- **PDF:** jsPDF, jspdf-autotable
-- **XML:** xmlbuilder
-- **Storage:** JSON (forms-data.json)
+### Backend
+- **Node.js** (>=14.0.0)
+- **Express.js** - Framework web
+- **Multer** - Upload fișiere
+- **dotenv** - Variabile de mediu
 
-## 📝 Note
+### Frontend
+- **HTML5, CSS3, JavaScript (ES6+)**
+- **Chart.js** - Grafice interactive
+- **Chart.js DataLabels Plugin** - Etichete pe grafice
 
-- Fiecare proiect are propriul `package.json` și `node_modules`
-- Datele sunt stocate în `forms-data.json` (JSON format)
-- Serverul rulează pe portul 3000 (implicit)
-- Pentru a rula ambele proiecte simultan, folosiți porturi diferite
+### Generare Documente
+- **jsPDF** - Generare PDF
+- **jspdf-autotable** - Tabele în PDF
+- **xmlbuilder** - Generare XML
+
+### Validare și Securitate
+- **validator** - Validare date
+- **bcrypt** - Hash parole (pentru funcționalități viitoare)
+
+### Development
+- **nodemon** - Auto-reload în development
+- **Jest** - Testing framework
+
+## 📝 Configurare
+
+### Variabile de Mediu
+Ambele proiecte folosesc fișierul `.env` (nu este versionat) pentru configurare:
+```env
+PORT=3000
+NODE_ENV=development
+```
+
+### Dependențe
+Fiecare proiect are propriul `package.json` și `node_modules`. Instalați dependențele separat pentru fiecare proiect.
+
+### Date
+Datele sunt stocate în `forms-data.json` (format JSON). Fișierul este partajat între toate funcționalitățile.
+
+## 🚦 Utilizare
+
+### Rulare HW1
+```bash
+cd HW1
+npm install
+npm start
+```
+
+### Rulare electronic-forms-system
+```bash
+cd electronic-forms-system
+npm install
+npm start
+```
+
+**Notă:** Pentru a rula ambele proiecte simultan, modificați portul în `.env` sau în `server-simple.js`.
 
 ## 📄 Licență
 
 Proiect academic pentru cursul de Guvernare Electronică.
+
+## 🔗 Repository
+
+GitHub: https://github.com/andi-ggs/eGOV

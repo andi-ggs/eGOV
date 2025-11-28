@@ -1,4 +1,4 @@
-# Sistem Formulare Electronice
+git i# Sistem Formulare Electronice
 
 Sistem complet de formulare electronice cu calculare automată, generare PDF/XML și administrare.
 
